@@ -42,7 +42,7 @@ public class BrumleyNode
         _children = new ArrayList<BrumleyNode>();
         
         // Call the generate children method to possibly generate child nodes.
-        createChildren();
+        //createChildren();
         
         // Sets the current level to 0 because no moves have been made yet.
         _level = 0;
@@ -131,7 +131,7 @@ public class BrumleyNode
                 checkJumps();
 
                 // Call the generate children method to possibly generate child nodes.
-                createChildren();
+                //createChildren();
             }
         }
         else if(_pegsLeft > 2)
@@ -141,7 +141,7 @@ public class BrumleyNode
             checkJumps();
             
             // Call the generate children method to possibly generate child nodes.
-            createChildren();
+            //createChildren();
         }
         else
         {
@@ -175,7 +175,7 @@ public class BrumleyNode
         _jumpsAvailable = jumpsAvailable - 1;
         
         // Creates children of this node.
-        createChildren();
+        //createChildren();
     }
     
     // ----- Private Methods -----
