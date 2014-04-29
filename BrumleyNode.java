@@ -41,9 +41,6 @@ public class BrumleyNode
         // Init the children
         _children = new ArrayList<BrumleyNode>();
         
-        // Call the generate children method to possibly generate child nodes.
-        //createChildren();
-        
         // Sets the current level to 0 because no moves have been made yet.
         _level = 0;
         
@@ -129,9 +126,6 @@ public class BrumleyNode
                 // Check for jumps and init the jump variables because the board has probably
                 // changed a lot since the parent node.
                 checkJumps();
-
-                // Call the generate children method to possibly generate child nodes.
-                //createChildren();
             }
         }
         else if(_pegsLeft > 2)
@@ -139,13 +133,6 @@ public class BrumleyNode
             // Check for jumps and init the jump variables because the board has probably
             // changed a lot since the parent node.
             checkJumps();
-            
-            // Call the generate children method to possibly generate child nodes.
-            //createChildren();
-        }
-        else
-        {
-            // Only one peg remains so don't bother with children.
         }
     } 
     
@@ -157,13 +144,10 @@ public class BrumleyNode
      */
     public BrumleyNode(char[][] board, int pegsLeft, int[] fromList, int[] toList, int jumpsAvailable, int curLevel)
     {
-        // Clone the board, fromList, and toList:
-        //cloneBoard(board);
+        // Copy the board, fromList, and toList:
         _currentBoard = board;
-        //cloneJumpFromList(fromList);
         _jumpFrom = fromList;
         _jumpTo = toList;
-        //cloneJumpToList(toList);
         
         // Set the level of this node.
         _level = curLevel;
@@ -173,9 +157,6 @@ public class BrumleyNode
         
         // Remove the last element in the arraylists:
         _jumpsAvailable = jumpsAvailable - 1;
-        
-        // Creates children of this node.
-        //createChildren();
     }
     
     // ----- Private Methods -----
@@ -202,9 +183,7 @@ public class BrumleyNode
             // The right child skips that jump and moves on to the next ones to try.
             BrumleyNode rightChild = new BrumleyNode(_currentBoard, getPegCount(), _jumpFrom, _jumpTo, this.getJumpCount(), _level + 1);
             
-            // Add the children to the child list
-           // if(leftChild.getJumpCount() > 0)
-                _children.add(leftChild);
+            _children.add(leftChild);
             _children.add(rightChild);
         }
         else if(_jumpsAvailable == 1)
@@ -213,8 +192,7 @@ public class BrumleyNode
             BrumleyNode onlyChild = new BrumleyNode(_currentBoard, _jumpFrom[_jumpsAvailable-1], _jumpTo[_jumpsAvailable-1], this.getPegCount(), _level + 1);
             
             // Add the only child to the children list
-            //if(onlyChild.getJumpCount() > 0)
-                _children.add(onlyChild);
+            _children.add(onlyChild);
         }
     }
     

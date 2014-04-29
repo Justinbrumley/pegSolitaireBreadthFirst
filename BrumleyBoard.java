@@ -97,11 +97,6 @@ public class BrumleyBoard
             _board[i] = board[i].clone();
     }
     
-    private boolean isPromising(BrumleyNode node)
-    {
-        return true;
-    }
-    
     private void printBoard()
     {
         for(int i = 0; i < 5; i++)
