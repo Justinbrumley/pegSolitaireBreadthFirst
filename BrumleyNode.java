@@ -15,8 +15,8 @@ public class BrumleyNode
     
     // For every jump available, these lists track the position from where the jump
     // starts, to where the peg will land.
-    private int[] _jumpFrom = new int[10];
-    private int[] _jumpTo = new int[10];
+    private int[] _jumpFrom = new int[12];
+    private int[] _jumpTo = new int[12];
     
     private ArrayList<BrumleyNode> _children = new ArrayList<BrumleyNode>();
     
