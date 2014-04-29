@@ -42,11 +42,11 @@ public class BrumleyBoard
             BrumleyNode node = nodes.pollFirst();
             nodeCounter++;
 
-            /*
+            
             System.out.println("Node " + nodeCounter + ": ");
             node.printBoard();
             System.out.println();
-            */
+            
             
             // If the node has children, add them to the queue.
             if(node.getChildren().size() != 0)
