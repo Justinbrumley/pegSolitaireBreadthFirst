@@ -32,7 +32,7 @@ public class BrumleyBoard
         
         // Add the root to the queue...
         nodes.offerLast(root);
-        int nodeCounter = 0;
+        int nodeCounter = 1;
         int initialPegCount = root.getPegCount();
         
         // Loop until the queue is empty or a solution down to one peg has been found...
