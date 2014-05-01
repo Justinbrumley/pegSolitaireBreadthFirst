@@ -15,8 +15,7 @@ public class BrumleyNode
     
     // For every jump available, these lists track the position from where the jump
     // starts, to where the peg will land.
-    private int[] _jumpFrom = new int[12];
-    private int[] _jumpTo = new int[12];
+    private ArrayList<int[]> _jumps = new ArrayList<int[]>();
     
     private ArrayList<BrumleyNode> _children = new ArrayList<BrumleyNode>();
     
@@ -52,7 +51,7 @@ public class BrumleyNode
      * Peg that needs to be jumped is included in the parameters.
      * @param board 
      */
-    public BrumleyNode(char[][] board, int jumpFrom, int jumpTo, int pegsLeft, int curLevel)
+    public BrumleyNode(char[][] board, int[] jump, int pegsLeft, int curLevel)
     {
         // Clone the board over to the current board variable
         cloneBoard(board);
@@ -64,17 +63,17 @@ public class BrumleyNode
         _children = new ArrayList<BrumleyNode>();
         
         // Uses the jumpFrom integer to calculate the (i, j) position of the jumping peg.
-        int i_from = (int) Math.floor((double) jumpFrom / 5.0f);
-        int j_from = jumpFrom % 5;
+        int i_from = (int) Math.floor((double) jump[0] / 5.0f);
+        int j_from = jump[0] % 5;
         
         // Uses the jumpTo integer to calculate the (i, j) position of where the
         // jumping peg is to land.
-        int i_to = (int) Math.floor((double) jumpTo / 5.0f);
-        int j_to = jumpTo % 5;
+        int i_to = (int) Math.floor((double) jump[1] / 5.0f);
+        int j_to = jump[1] % 5;
         
         // Finds the midpoint of jumpFrom and jumpTo and uses that to calculate the
         // (i, j) position of the peg being jumped.
-        double mid = (jumpFrom + jumpTo) / 2;
+        double mid = (jump[1] + jump[0]) / 2;
         int i_peg = (int) Math.floor(mid / 5.0f);
         int j_peg = (int) mid % 5;
         
@@ -142,12 +141,12 @@ public class BrumleyNode
      * element off the passed in array lists for jumping, because the first element will
      * have been skipped by the parent node.
      */
-    public BrumleyNode(char[][] board, int pegsLeft, int[] fromList, int[] toList, int jumpsAvailable, int curLevel)
+    public BrumleyNode(char[][] board, int pegsLeft, ArrayList<int[]> jumpList, int jumpsAvailable, int curLevel)
     {
         // Copy the board, fromList, and toList:
         _currentBoard = board;
-        _jumpFrom = fromList;
-        _jumpTo = toList;
+        _jumps = jumpList;
+        _jumps.remove(0);
         
         // Set the level of this node.
         _level = curLevel;
@@ -178,10 +177,10 @@ public class BrumleyNode
             /* Create a right and left child node */
             
             // The left child is responsible for jumping the first jump available in this node.
-            BrumleyNode leftChild = new BrumleyNode(_currentBoard, _jumpFrom[_jumpsAvailable-1], _jumpTo[_jumpsAvailable-1], this.getPegCount(), _level + 1);
+            BrumleyNode leftChild = new BrumleyNode(_currentBoard, _jumps.get(0), this.getPegCount(), _level + 1);
             
             // The right child skips that jump and moves on to the next ones to try.
-            BrumleyNode rightChild = new BrumleyNode(_currentBoard, getPegCount(), _jumpFrom, _jumpTo, this.getJumpCount(), _level + 1);
+            BrumleyNode rightChild = new BrumleyNode(_currentBoard, getPegCount(), _jumps, this.getJumpCount(), _level + 1);
             
             _children.add(leftChild);
             _children.add(rightChild);
@@ -189,7 +188,7 @@ public class BrumleyNode
         else if(_jumpsAvailable == 1)
         {
             /* Create just a left child node */
-            BrumleyNode onlyChild = new BrumleyNode(_currentBoard, _jumpFrom[_jumpsAvailable-1], _jumpTo[_jumpsAvailable-1], this.getPegCount(), _level + 1);
+            BrumleyNode onlyChild = new BrumleyNode(_currentBoard, _jumps.get(0), this.getPegCount(), _level + 1);
             
             // Add the only child to the children list
             _children.add(onlyChild);
@@ -263,8 +262,8 @@ public class BrumleyNode
                     int jumpToPos = (i * 5) + (j - 2);
                     
                     // Place positions into the arrays
-                    _jumpFrom[_jumpsAvailable] = jumpFromPos;
-                    _jumpTo[_jumpsAvailable] = jumpToPos;
+                    int[] arr = { jumpFromPos, jumpToPos };
+                    _jumps.add(arr);
                     
                     // If it is empty, that means a jump is available here, so
                     // it needs to be added to the list
@@ -291,8 +290,8 @@ public class BrumleyNode
                     int jumpToPos = (i * 5) + (j + 2);
                     
                     // Place positions into the arrays
-                    _jumpFrom[_jumpsAvailable] = jumpFromPos;
-                    _jumpTo[_jumpsAvailable] = jumpToPos;
+                    int[] arr = { jumpFromPos, jumpToPos };
+                    _jumps.add(arr);
                     
                     // If it is empty, that means a jump is available here, so
                     // it needs to be added to the list
@@ -320,8 +319,8 @@ public class BrumleyNode
                     int jumpToPos = ((i + 2) * 5) + j;
                     
                     // Place positions into the arrays
-                    _jumpFrom[_jumpsAvailable] = jumpFromPos;
-                    _jumpTo[_jumpsAvailable] = jumpToPos;
+                    int[] arr = { jumpFromPos, jumpToPos };
+                    _jumps.add(arr);
                     
                     // If it is empty, that means a jump is available here, so
                     // it needs to be added to the list
@@ -349,8 +348,8 @@ public class BrumleyNode
                     int jumpToPos = ((i - 2) * 5) + j;
                     
                     // Place positions into the arrays
-                    _jumpFrom[_jumpsAvailable] = jumpFromPos;
-                    _jumpTo[_jumpsAvailable] = jumpToPos;
+                    int[] arr = { jumpFromPos, jumpToPos };
+                    _jumps.add(arr);
                     
                     // If it is empty, that means a jump is available here, so
                     // it needs to be added to the list
@@ -386,24 +385,7 @@ public class BrumleyNode
             System.out.println();
         }
     }
-    
-    /**
-     * Clones the Jump To array list "list" into the _jumpTo arraylist variable
-     * @param list - The list to be cloned
-     */
-    private void cloneJumpToList(int[] list)
-    {
-        System.arraycopy(list, 0, _jumpTo, 0, list.length);
-    }
-    
-    /**
-     * Clones the Jump From array list "list" into the _jumpFrom arraylist variable
-     * @param list - The list to be cloned
-     */
-    private void cloneJumpFromList(int[] list)
-    {
-        System.arraycopy(list, 0, _jumpFrom, 0, list.length);
-    }
+
     
     // ----- Getters and Setters -----
     

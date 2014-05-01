@@ -41,12 +41,6 @@ public class BrumleyBoard
             // Pull the first node from the queue.
             BrumleyNode node = nodes.pollFirst();
             nodeCounter++;
-
-            /*       
-            System.out.println("Node " + nodeCounter + ": ");
-            node.printBoard();
-            System.out.println();
-            */
             
             if(node.getPegCount() > 1)
                node.createChildren();
