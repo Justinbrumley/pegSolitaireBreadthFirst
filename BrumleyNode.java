@@ -15,7 +15,8 @@ public class BrumleyNode
     
     // For every jump available, these lists track the position from where the jump
     // starts, to where the peg will land.
-    private ArrayList<int[]> _jumps = new ArrayList<int[]>();
+    private int[] _jumpFrom = new int[14];
+    private int[] _jumpTo = new int[14];
     
     private ArrayList<BrumleyNode> _children = new ArrayList<BrumleyNode>();
     
@@ -51,7 +52,7 @@ public class BrumleyNode
      * Peg that needs to be jumped is included in the parameters.
      * @param board 
      */
-    public BrumleyNode(char[][] board, int[] jump, int pegsLeft, int curLevel)
+    public BrumleyNode(char[][] board, int jumpFrom, int jumpTo, int pegsLeft, int curLevel)
     {
         // Clone the board over to the current board variable
         cloneBoard(board);
@@ -63,17 +64,17 @@ public class BrumleyNode
         _children = new ArrayList<BrumleyNode>();
         
         // Uses the jumpFrom integer to calculate the (i, j) position of the jumping peg.
-        int i_from = (int) Math.floor((double) jump[0] / 5.0f);
-        int j_from = jump[0] % 5;
+        int i_from = (int) Math.floor((double) jumpFrom / 5.0f);
+        int j_from = jumpFrom % 5;
         
         // Uses the jumpTo integer to calculate the (i, j) position of where the
         // jumping peg is to land.
-        int i_to = (int) Math.floor((double) jump[1] / 5.0f);
-        int j_to = jump[1] % 5;
+        int i_to = (int) Math.floor((double) jumpTo / 5.0f);
+        int j_to = jumpTo % 5;
         
         // Finds the midpoint of jumpFrom and jumpTo and uses that to calculate the
         // (i, j) position of the peg being jumped.
-        double mid = (jump[1] + jump[0]) / 2;
+        double mid = (jumpTo + jumpFrom) / 2;
         int i_peg = (int) Math.floor(mid / 5.0f);
         int j_peg = (int) mid % 5;
         
@@ -89,50 +90,8 @@ public class BrumleyNode
          // Assign the pegs left variable to that of the parents minus 1.
         _pegsLeft = pegsLeft - 1;
         
-        // If only two pegs remain, check the distance between them:
-        if(_pegsLeft == 2)
-        {
-            // Find the pegs:
-            int peg_i = 0, peg_j = 0, peg2_i, peg2_j;
-            boolean foundOne = false;
-            
-            peg2_i = i_to;
-            peg2_j = j_to;
-            
-            for(int i = 0; i < 5 && !foundOne; i++)
-            {
-                for(int j = 0; j < 5 && !foundOne; ++j)
-                {
-                    if(_currentBoard[i][j] == 'o' && !(i == peg2_i && j == peg2_j))
-                    {
-                        foundOne = true;
-                        peg_i = i;
-                        peg_j = j;
-                    }
-                }
-            }
-            
-            // Find the distance between the two points...
-            double distance = Math.sqrt(Math.pow(peg_i - peg2_i, 2) + Math.pow(peg_j - peg2_j, 2));
-            
-            // If they are more than one tile away from each other, no use making children.
-            if(distance > 1)
-            {
-                return;
-            }
-            else if(distance == 1)
-            {
-                // Check for jumps and init the jump variables because the board has probably
-                // changed a lot since the parent node.
-                checkJumps();
-            }
-        }
-        else if(_pegsLeft > 2)
-        {
-            // Check for jumps and init the jump variables because the board has probably
-            // changed a lot since the parent node.
-            checkJumps();
-        }
+        // Recalc possible jumps
+        checkJumps();
     } 
     
     /**
@@ -141,12 +100,12 @@ public class BrumleyNode
      * element off the passed in array lists for jumping, because the first element will
      * have been skipped by the parent node.
      */
-    public BrumleyNode(char[][] board, int pegsLeft, ArrayList<int[]> jumpList, int jumpsAvailable, int curLevel)
+    public BrumleyNode(char[][] board, int pegsLeft, int[] jumpFrom, int[] jumpTo, int jumpsAvailable, int curLevel)
     {
         // Copy the board, fromList, and toList:
         _currentBoard = board;
-        _jumps = jumpList;
-        _jumps.remove(0);
+        _jumpTo = jumpTo;
+        _jumpFrom = jumpFrom;
         
         // Set the level of this node.
         _level = curLevel;
@@ -172,26 +131,17 @@ public class BrumleyNode
     {
         _children = new ArrayList<BrumleyNode>();
         
+        // The left child is responsible for jumping the first jump available in this node.
+        BrumleyNode leftChild = new BrumleyNode(_currentBoard, _jumpFrom[_jumpsAvailable-1], _jumpTo[_jumpsAvailable-1], this.getPegCount(), _level + 1);
+        
+        _children.add(leftChild);
+        
         if(_jumpsAvailable > 1)
         {
-            /* Create a right and left child node */
-            
-            // The left child is responsible for jumping the first jump available in this node.
-            BrumleyNode leftChild = new BrumleyNode(_currentBoard, _jumps.get(0), this.getPegCount(), _level + 1);
-            
             // The right child skips that jump and moves on to the next ones to try.
-            BrumleyNode rightChild = new BrumleyNode(_currentBoard, getPegCount(), _jumps, this.getJumpCount(), _level + 1);
+            BrumleyNode rightChild = new BrumleyNode(_currentBoard, getPegCount(), _jumpFrom, _jumpTo, this.getJumpCount(), _level + 1);
             
-            _children.add(leftChild);
             _children.add(rightChild);
-        }
-        else if(_jumpsAvailable == 1)
-        {
-            /* Create just a left child node */
-            BrumleyNode onlyChild = new BrumleyNode(_currentBoard, _jumps.get(0), this.getPegCount(), _level + 1);
-            
-            // Add the only child to the children list
-            _children.add(onlyChild);
         }
     }
     
@@ -248,7 +198,7 @@ public class BrumleyNode
         
         // if two spaces to the left is off the board, or the piece located there
         // is a pound ('#'), no use checking anymore.
-        if(j - 2 >= 0 && _currentBoard[i][j-2] != '#' && _currentBoard[i][j-2] != 'o')
+        if(j - 2 >= 0)
         {
             // First check if the position immediately to the left is a peg.
             // if it is, check the next spot over to see if its empty.
@@ -262,8 +212,8 @@ public class BrumleyNode
                     int jumpToPos = (i * 5) + (j - 2);
                     
                     // Place positions into the arrays
-                    int[] arr = { jumpFromPos, jumpToPos };
-                    _jumps.add(arr);
+                    _jumpFrom[_jumpsAvailable] = jumpFromPos;
+                    _jumpTo[_jumpsAvailable] = jumpToPos;
                     
                     // If it is empty, that means a jump is available here, so
                     // it needs to be added to the list
@@ -276,7 +226,7 @@ public class BrumleyNode
         
         // if two spaces to the right is off the board, or the piece located there
         // is a pound ('#'), no use checking anymore.
-        if(j + 2 < 5 && _currentBoard[i][j+2] != '#' && _currentBoard[i][j+2] != 'o')
+        if(j + 2 < 5)
         {
             // First check if the position immediately to the right is a peg.
             // if it is, check the next spot over to see if its empty.
@@ -290,8 +240,8 @@ public class BrumleyNode
                     int jumpToPos = (i * 5) + (j + 2);
                     
                     // Place positions into the arrays
-                    int[] arr = { jumpFromPos, jumpToPos };
-                    _jumps.add(arr);
+                    _jumpFrom[_jumpsAvailable] = jumpFromPos;
+                    _jumpTo[_jumpsAvailable] = jumpToPos;
                     
                     // If it is empty, that means a jump is available here, so
                     // it needs to be added to the list
@@ -305,7 +255,7 @@ public class BrumleyNode
         
         // if two spaces down is off the board, or the piece located there
         // is a pound ('#'), no use checking anymore.
-        if(i + 2 < 5 && _currentBoard[i+2][j] != '#' && _currentBoard[i+2][j] != 'o')
+        if(i + 2 < 5)
         {
             // First check if the position immediately down is a peg.
             // if it is, check the next spot down to see if its empty.
@@ -319,8 +269,8 @@ public class BrumleyNode
                     int jumpToPos = ((i + 2) * 5) + j;
                     
                     // Place positions into the arrays
-                    int[] arr = { jumpFromPos, jumpToPos };
-                    _jumps.add(arr);
+                    _jumpFrom[_jumpsAvailable] = jumpFromPos;
+                    _jumpTo[_jumpsAvailable] = jumpToPos;
                     
                     // If it is empty, that means a jump is available here, so
                     // it needs to be added to the list
@@ -334,7 +284,7 @@ public class BrumleyNode
         
         // if two spaces up is off the board, or the piece located there
         // is a pound ('#'), no use checking anymore.
-        if(i - 2 >= 0 && _currentBoard[i-2][j] != '#' && _currentBoard[i-2][j] != 'o')
+        if(i - 2 >= 0)
         {
             // First check if the position immediately up is a peg.
             // if it is, check the next spot up to see if its empty.
@@ -348,9 +298,9 @@ public class BrumleyNode
                     int jumpToPos = ((i - 2) * 5) + j;
                     
                     // Place positions into the arrays
-                    int[] arr = { jumpFromPos, jumpToPos };
-                    _jumps.add(arr);
-                    
+                    _jumpFrom[_jumpsAvailable] = jumpFromPos;
+                    _jumpTo[_jumpsAvailable] = jumpToPos;
+ 
                     // If it is empty, that means a jump is available here, so
                     // it needs to be added to the list
                     _jumpsAvailable++;

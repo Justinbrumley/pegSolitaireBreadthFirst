@@ -42,7 +42,7 @@ public class BrumleyBoard
             BrumleyNode node = nodes.pollFirst();
             nodeCounter++;
             
-            if(node.getPegCount() > 1)
+            if(node.getPegCount() > 1 && node.getJumpCount() > 0)
                node.createChildren();
             
             // If the node has children, add them to the queue.

@@ -44,7 +44,7 @@ public class BrumleyP4
                 String line = scan.next();
                 for(int k = 0; k < 5; ++k)
                 {
-                    temp[k][j] = line.charAt(k);
+                    temp[j][k] = line.charAt(k);
                 }
             }
             
