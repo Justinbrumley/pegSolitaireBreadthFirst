@@ -401,6 +401,24 @@ public class BrumleyNode
     
     public char[][] getBoard() { return _currentBoard; }
     
+    public int getID()
+    {
+         int total = 0;
+         
+         for(int i = 0; i < 5; i++)
+         {
+            for(int j = 0; j < 5; j++)
+            {
+               if(_currentBoard[i][j] == 'o')
+               {
+                  total += (j + (i * 5));
+               }
+            }
+         }
+         
+         return total;
+    }
+    
     // ----- Comparators -----
     
     public boolean equals(Object other)
@@ -411,15 +429,9 @@ public class BrumleyNode
         // Typecase other as a node
         BrumleyNode otherNode = (BrumleyNode) other;
         
-        for(int i = 0; i < 5; i++)
-        {
-            for(int j = 0; j < 5; j++)
-            {
-                if(_currentBoard[i][j] != otherNode.getBoard()[i][j])
-                    return false;
-            }
-        }
-        
-        return true;
+        if(this.getID() == otherNode.getID())
+            return true;
+        else
+            return false;
     }
 }
