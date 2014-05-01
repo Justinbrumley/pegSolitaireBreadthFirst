@@ -1,7 +1,10 @@
 import java.util.ArrayList;
 
 /**
- *
+ * Class Name: Node
+ * Purpose: To store the current instance of the board at this particular point in the search tree. The node
+ * contains ways of checking where all possible jumps and storing them, as well as counting how many pegs are left at
+ * the current instance. It also generates its own children to be used in the breadth first search.
  * @author Justin
  */
 public class BrumleyNode
@@ -15,8 +18,8 @@ public class BrumleyNode
     
     // For every jump available, these lists track the position from where the jump
     // starts, to where the peg will land.
-    private int[] _jumpFrom = new int[14];
-    private int[] _jumpTo = new int[14];
+    private int[] _jumpFrom = new int[12];
+    private int[] _jumpTo = new int[12];
     
     private ArrayList<BrumleyNode> _children = new ArrayList<BrumleyNode>();
     
