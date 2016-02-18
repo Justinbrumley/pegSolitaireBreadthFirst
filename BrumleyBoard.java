@@ -2,7 +2,7 @@ import java.util.LinkedList;
 
 /**
  * Class Name: Board
- * purpose: to set up an instance of the peg solitaire game using a 5x5 board. It also sets up a root node to begin the
+ * Purpose: To set up an instance of the peg solitaire game using a 5x5 board. It also sets up a root node to begin the
  * tree to search for the best possible game. It creates a queue using a linkedlist and begins cycling through the queue
  * until it is empty. Using a queue is what sets up the search to be breadth-first.
  * @author Justin
